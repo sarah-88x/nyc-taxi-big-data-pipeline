@@ -1,0 +1,14 @@
+data/
+*.csv
+*.parquet
+*.json
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+logs/
+*.log
+airflow/logs/
+.DS_Store
+Thumbs.db
