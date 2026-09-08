@@ -6,46 +6,44 @@ from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml import Pipeline
 
 def main():
-    # 1) تهيئة جلسة Spark
     spark = SparkSession.builder \
         .appName("TaxiDurationRandomForest") \
         .master("spark://spark-master:7077") \
         .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")
-    print(">>> 📥 بدء قراءة البيانات النظيفة وملف المناطق من HDFS...")
+    print("Loading curated dataset and taxi zones lookup from HDFS...")
 
-    # 2) قراءة البيانات المنقحة وملف المناطق
     processed_path = "hdfs://namenode:9000/processed/yellow_tripdata_2019-01_clean.parquet"
     lookup_path = "hdfs://namenode:9000/raw/taxi_zones/taxi_zone_lookup.csv"
 
     df = spark.read.parquet(processed_path)
     df_zones = spark.read.option("header", "true").option("inferSchema", "true").csv(lookup_path)
 
-    # 3) فلترة الحالات المعلمة (Outliers / Flags) لتحسين جودة التدريب
+    # Filter anomaly-flagged trips to improve training quality
     df_filtered = df.filter(
         (col("flag_positive_duration_zero_distance") == False) &
         (col("flag_zero_duration_zero_distance") == False)
     )
 
-    # استخراج الميزات الزمنية: مدة الرحلة بالدقائق، ساعة الركوب، ويوم الأسبوع
+    # Feature engineering: trip duration (mins), pickup hour, and day of week
     df_features = df_filtered.withColumn("trip_duration_minutes", sql_round(col("trip_duration_seconds") / 60.0, 2)) \
                              .withColumn("pickup_hour", hour(col("tpep_pickup_datetime"))) \
                              .withColumn("day_of_week", dayofweek(col("tpep_pickup_datetime")))
 
-    # ربط الرحلات لجلب اسم الحي (Borough)
+    # Join with zones table to attach pickup borough
     df_model = df_features.join(
         df_zones.select(col("LocationID"), col("Borough").alias("pickup_borough")),
         df_features["PULocationID"] == df_zones["LocationID"],
         how="inner"
     )
 
-    # استبعاد الرحلات الشاذة (أقل من دقيقة أو أطول من 3 ساعات)
+    # Filter realistic duration boundaries (between 1 minute and 3 hours)
     df_model = df_model.filter((col("trip_duration_minutes") >= 1.0) & (col("trip_duration_minutes") < 180.0)) \
                        .select("trip_distance", "passenger_count", "pickup_hour", "day_of_week", "pickup_borough", "trip_duration_minutes") \
                        .na.drop()
 
-    # 4) مراحل الـ Machine Learning Pipeline
+    # Machine Learning Pipeline stages
     indexer = StringIndexer(inputCol="pickup_borough", outputCol="borough_index", handleInvalid="keep")
 
     assembler = VectorAssembler(
@@ -53,7 +51,6 @@ def main():
         outputCol="features"
     )
 
-    # نموذج Random Forest
     rf = RandomForestRegressor(
         featuresCol="features",
         labelCol="trip_duration_minutes",
@@ -64,16 +61,13 @@ def main():
 
     pipeline = Pipeline(stages=[indexer, assembler, rf])
 
-    # 5) تقسيم البيانات (80% Train, 20% Test)
-    print(">>> 🔄 تقسيم البيانات لـ Train و Test...")
+    print("Splitting dataset into train (80%) and test (20%) sets...")
     train_data, test_data = df_model.randomSplit([0.8, 0.2], seed=42)
 
-    # 6) تدريب الموديل
-    print(">>> 🌲 جارٍ تدريب نموذج Random Forest عبر الـ Cluster...")
+    print("Training Random Forest regression model on Spark cluster...")
     model = pipeline.fit(train_data)
 
-    # 7) التقييم
-    print(">>> 📊 تقييم أداء النموذج على بيانات الاختبار...")
+    print("Evaluating model performance on test set...")
     predictions = model.transform(test_data)
 
     evaluator_rmse = RegressionEvaluator(labelCol="trip_duration_minutes", predictionCol="prediction", metricName="rmse")
@@ -82,16 +76,15 @@ def main():
     rmse = evaluator_rmse.evaluate(predictions)
     r2 = evaluator_r2.evaluate(predictions)
 
-    print("--------------------------------------------------")
-    print(f"✅ RMSE (متوسط الخطأ بالدقائق): {round(rmse, 2)} دقيقة")
-    print(f"✅ R² Score (معامل التحديد): {round(r2, 4)}")
-    print("--------------------------------------------------")
+    print("-" * 50)
+    print(f"RMSE (Root Mean Squared Error): {round(rmse, 2)} minutes")
+    print(f"R2 Score (Coefficient of Determination): {round(r2, 4)}")
+    print("-" * 50)
 
-    # 8) حفظ الـ Pipeline كاملاً في HDFS
     model_output_path = "hdfs://namenode:9000/models/trip_duration_rf_pipeline"
-    print(f">>> 💾 حفظ النموذج في {model_output_path}...")
+    print(f"Saving fitted pipeline to: {model_output_path}")
     model.write().overwrite().save(model_output_path)
-    print("✅ تم حفظ الـ Random Forest Pipeline بنجاح في HDFS!")
+    print("Random Forest pipeline persisted successfully to HDFS.")
 
     spark.stop()
 

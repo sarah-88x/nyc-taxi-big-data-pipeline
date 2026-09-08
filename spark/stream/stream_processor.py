@@ -10,9 +10,9 @@ def main():
         .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")
-    print(">>> 🚀 بدء تشغيل Spark Stream Processor...")
+    print("Initializing Spark Stream Processor...")
 
-    # 1) إعداد الاتصال بكافكا داخلياً
+    # Configure internal Kafka connections
     consumer = KafkaConsumer(
         'raw_taxi_trips',
         bootstrap_servers=['kafka:29092'],
@@ -45,7 +45,7 @@ def main():
         StructField("total_amount", DoubleType(), True)
     ])
 
-    print(">>> 🟢 محرك التدفق متصل بنجاح وينتظر تدفق الرسائل...")
+    print("Stream engine connected successfully. Awaiting messages...")
 
     batch = []
     batch_size = 50
@@ -54,7 +54,7 @@ def main():
         for message in consumer:
             raw_data = message.value
             
-            # تحويل الأنواع للحقول الأساسية
+            # Cast primary datatypes
             try:
                 trip_distance = float(raw_data.get("trip_distance", 0.0) or 0.0)
                 fare_amount = float(raw_data.get("fare_amount", 0.0) or 0.0)
@@ -81,7 +81,7 @@ def main():
                 "total_amount": total_amount
             }
 
-            # تطبيق قواعد الشذوذ (Anomaly Detection) وإرسال التنبيهات فوراً
+            # Apply anomaly detection rules and dispatch alerts
             alert_reason = None
             if fare_amount > 150.0:
                 alert_reason = "High Fare Anomaly"
@@ -102,17 +102,17 @@ def main():
 
             batch.append(cleaned_row)
 
-            # معالجة الدفعة في Spark وعرضها
+            # Process and display micro-batch
             if len(batch) >= batch_size:
                 df = spark.createDataFrame(batch, schema=schema)
-                print("\n-------------------------------------------")
-                print(f">>> 🚕 معالجة دفعة جديدة من الرحلات ({len(batch)} رحلة):")
-                print("-------------------------------------------")
+                print("-" * 50)
+                print(f"Processing micro-batch ({len(batch)} trips):")
+                print("-" * 50)
                 df.select("tpep_pickup_datetime", "PULocationID", "trip_distance", "fare_amount", "total_amount").show(10, truncate=False)
                 batch = []
 
     except KeyboardInterrupt:
-        print("\n⏹️ تم إيقاف المعالجة اللحظية.")
+        print("\nStreaming process halted manually.")
     finally:
         consumer.close()
         producer.close()

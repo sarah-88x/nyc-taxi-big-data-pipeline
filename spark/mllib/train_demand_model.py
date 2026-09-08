@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, from_json, to_json, struct, when, lit, to_timestamp
+from pyspark.sql.functions import col, from_json, to_json, struct, when
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType
 
 def main():
@@ -9,9 +9,9 @@ def main():
         .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")
-    print(">>> 🚀 بدء تشغيل Spark Structured Streaming...")
+    print("Starting Spark Structured Streaming engine...")
 
-    # 1) تعريف الـ Schema لرسائل الـ Taxi القادمة من كافكا
+    # 1. Define schema for incoming taxi trip messages
     schema = StructType([
         StructField("VendorID", StringType(), True),
         StructField("tpep_pickup_datetime", StringType(), True),
@@ -30,7 +30,7 @@ def main():
         StructField("total_amount", StringType(), True)
     ])
 
-    # 2) القراءة المستمرة من Kafka Topic: raw_taxi_trips
+    # 2. Consume continuous stream from Kafka topic
     kafka_raw = spark.readStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", "kafka:9092") \
@@ -38,7 +38,7 @@ def main():
         .option("startingOffsets", "latest") \
         .load()
 
-    # 3) استخراج محتوى الرسائل وتحويل الأنواع
+    # 3. Parse JSON payload and cast datatypes
     parsed_stream = kafka_raw.selectExpr("CAST(value AS STRING) as json_payload") \
         .select(from_json(col("json_payload"), schema).alias("data")) \
         .select("data.*") \
@@ -47,19 +47,19 @@ def main():
         .withColumn("total_amount", col("total_amount").cast(DoubleType())) \
         .withColumn("PULocationID", col("PULocationID").cast(IntegerType()))
 
-    # 4) فلترة الرحلات الشاذة (Anomaly Rules) لإرسالها كتنبيهات فورية
-    # شذوذ الأسعار أو المسافات الصفرية ذات السعر المرتفع
+    # 4. Filter and flag streaming anomalies
     alerts_stream = parsed_stream.filter(
         (col("fare_amount") > 150.0) | 
         ((col("trip_distance") == 0.0) & (col("fare_amount") > 30.0)) |
         (col("fare_amount") < 2.5)
-    ).withColumn("alert_reason", 
+    ).withColumn(
+        "alert_reason", 
         when(col("fare_amount") > 150.0, "High Fare Anomaly")
         .when((col("trip_distance") == 0.0) & (col("fare_amount") > 30.0), "Zero Distance High Cost")
         .otherwise("Sub-minimum Fare")
     )
 
-    # 5) تجهيز تيار التنبيهات لإعادة إرساله إلى Kafka Topic: taxi_alerts
+    # 5. Format and publish anomalies back to Kafka alerts topic
     kafka_alerts_payload = alerts_stream.select(
         to_json(struct(
             col("tpep_pickup_datetime"),
@@ -78,7 +78,7 @@ def main():
         .outputMode("append") \
         .start()
 
-    # 6) طباعة عينة من الرحلات المعالجة لحظياً في الـ Console للمراقبة
+    # 6. Stream processed sample trips to console for live monitoring
     query_console = parsed_stream.select(
         "tpep_pickup_datetime", "PULocationID", "trip_distance", "fare_amount", "total_amount"
     ).writeStream \
@@ -87,7 +87,7 @@ def main():
      .option("truncate", "false") \
      .start()
 
-    print(">>> 🟢 محرك التدفق يعمل الآن وينتظر تدفق الرسائل...")
+    print("Streaming engine is active and awaiting incoming messages...")
     spark.streams.awaitAnyTermination()
 
 if __name__ == "__main__":

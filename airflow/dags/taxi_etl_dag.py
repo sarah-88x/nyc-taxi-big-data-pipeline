@@ -10,7 +10,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-# إرسال أوامر التنفيذ مباشرة إلى Spark Master
+
 SPARK_URL = "spark://spark-master:7077"
 
 with DAG(
@@ -22,13 +22,13 @@ with DAG(
     tags=['taxi', 'etl', 'spark'],
 ) as dag:
 
-    # 1) تنظيف البيانات وتطبيق قواعد الجودة
+    
     clean_data_task = BashOperator(
         task_id='clean_taxi_data',
         bash_command=f'curl -s http://spark-master:8080 > /dev/null || true'
     )
 
-    # 2) تجميع الرحلات وتصديرها إلى PostgreSQL
+   
     aggregate_trips_task = BashOperator(
         task_id='aggregate_and_export_postgres',
         bash_command=f'echo "Pipeline batch sync completed successfully"'
