@@ -11,7 +11,7 @@ An end-to-end Big Data & Analytics platform processing large-scale NYC Yellow Ta
 - **Serving Layer:** PostgreSQL (JDBC Data Warehouse)
 - **BI & Visualization:** Apache Superset
 - **CI/CD & Automation:** GitHub Actions (Code Quality & DAG Validation)
-
+![Screenshot](Proposal.png)
 ## Project Structure
 ```text
 nyp-taki/
