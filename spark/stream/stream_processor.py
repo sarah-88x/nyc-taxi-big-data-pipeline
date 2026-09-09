@@ -12,7 +12,7 @@ def main():
     spark.sparkContext.setLogLevel("WARN")
     print("Initializing Spark Stream Processor...")
 
-    # Configure internal Kafka connections
+    # 1. Consumer for Raw Trips
     consumer = KafkaConsumer(
         'raw_taxi_trips',
         bootstrap_servers=['kafka:29092'],
@@ -22,6 +22,7 @@ def main():
         value_deserializer=lambda x: json.loads(x.decode('utf-8'))
     )
 
+    # Producer for derived events & alerts
     producer = KafkaProducer(
         bootstrap_servers=['kafka:29092'],
         value_serializer=lambda v: json.dumps(v).encode('utf-8')
@@ -81,7 +82,10 @@ def main():
                 "total_amount": total_amount
             }
 
-            # Apply anomaly detection rules and dispatch alerts
+            # 2. Publish cleaned event to 'taxi_trip_events' topic (هذا هو السطر المضاف)
+            producer.send("taxi_trip_events", value=cleaned_row)
+
+            # 3. Apply anomaly detection rules and dispatch alerts to 'taxi_alerts'
             alert_reason = None
             if fare_amount > 150.0:
                 alert_reason = "High Fare Anomaly"
