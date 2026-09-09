@@ -82,7 +82,7 @@ def main():
                 "total_amount": total_amount
             }
 
-            # 2. Publish cleaned event to 'taxi_trip_events' topic (هذا هو السطر المضاف)
+            # 2. Publish cleaned event to 'taxi_trip_events' topic 
             producer.send("taxi_trip_events", value=cleaned_row)
 
             # 3. Apply anomaly detection rules and dispatch alerts to 'taxi_alerts'
