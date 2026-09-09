@@ -8,7 +8,7 @@ def main():
 
     spark.sparkContext.setLogLevel("WARN")
 
-    processed_path = "hdfs://namenode:9000/processed/yellow_tripdata_2019-01_clean.parquet"
+    processed_path = "hdfs://namenode:9000/processed/yellow_trips_clean.parquet"
     lookup_path = "hdfs://namenode:9000/raw/taxi_zones/taxi_zone_lookup.csv"
 
     print("Reading processed dataset and zones lookup from HDFS...")

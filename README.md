@@ -1,6 +1,6 @@
 # NYC Smart Taxi - Big Data Engineering Pipeline
 
-An end-to-end Big Data & Analytics platform processing NYC Yellow Taxi trip records (~7.5M rows) using batch processing, streaming ingestion, machine learning, and interactive business intelligence dashboards.
+An end-to-end Big Data & Analytics platform processing large-scale NYC Yellow Taxi trip records (~101M raw records / ~98.6M curated records) using distributed batch processing, real-time streaming ingestion, machine learning, and interactive business intelligence dashboards.
 
 ## Architecture & Pipeline
 - **Distributed Storage:** Apache Hadoop HDFS
@@ -10,10 +10,12 @@ An end-to-end Big Data & Analytics platform processing NYC Yellow Taxi trip reco
 - **Pipeline Orchestration:** Apache Airflow
 - **Serving Layer:** PostgreSQL (JDBC Data Warehouse)
 - **BI & Visualization:** Apache Superset
+- **CI/CD & Automation:** GitHub Actions (Code Quality & DAG Validation)
 
 ## Project Structure
 ```text
 nyp-taki/
+├── .github/workflows/   # CI/CD pipeline automation
 ├── airflow/             # DAG definitions and pipeline orchestration
 ├── dashboards/          # Superset dashboard exports and configs
 ├── docker/              # Docker Compose environment setup

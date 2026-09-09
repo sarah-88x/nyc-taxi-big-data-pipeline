@@ -1,3 +1,4 @@
+import builtins
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_timestamp, unix_timestamp, when, lit
 
@@ -8,8 +9,8 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
-# 1. Ingest raw dataset from HDFS
-raw_data_path = "hdfs://namenode:9000/raw/trips/yellow_tripdata_2019-01.csv"
+# 1. Ingest raw dataset from HDFS (All CSV files)
+raw_data_path = "hdfs://namenode:9000/raw/trips/yellow_tripdata_*.csv"
 df = spark.read.csv(raw_data_path, header=True, inferSchema=True)
 total_raw = df.count()
 print(f"Total raw records loaded: {total_raw}")
@@ -83,7 +84,7 @@ df = df.filter(col("trip_duration_seconds") >= 0)
 # 9. Summary metrics computation
 final_count = df.count()
 dropped_count = total_raw - final_count
-dropped_percentage = round((dropped_count / total_raw) * 100, 2)
+dropped_percentage = builtins.round((dropped_count / total_raw) * 100, 2)
 
 print(f"Final curated record count: {final_count}")
 print(f"Total dropped records: {dropped_count} ({dropped_percentage}%)")
@@ -97,7 +98,7 @@ print(f"Flagged (positive duration, zero distance): {flagged_case_b}")
 print(f"Flagged (zero duration, zero distance): {flagged_case_c}")
 
 # 10. Persist curated data to HDFS in Parquet format
-output_processed_path = "hdfs://namenode:9000/processed/yellow_tripdata_2019-01_clean.parquet"
+output_processed_path = "hdfs://namenode:9000/processed/yellow_trips_clean.parquet"
 df.write.mode("overwrite").parquet(output_processed_path)
 print("Curated dataset persisted successfully to HDFS.")
 
