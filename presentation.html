@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Taxi & Urban Mobility Analytics Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f17;
+            color: #e2e8f0;
+        }
+
+        code, pre {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(234, 179, 8, 0.4);
+            box-shadow: 0 12px 30px -10px rgba(234, 179, 8, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-blue-text {
+            background: linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-border {
+            position: relative;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(234,179,8,0.3), rgba(59,130,246,0.1));
+            padding: 1px;
+        }
+
+        .glow-yellow {
+            box-shadow: 0 0 50px -10px rgba(234, 179, 8, 0.25);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f17;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #eab308;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-yellow-500 selection:text-black">
+
+    <!-- Navigation Bar -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-500 to-amber-300 flex items-center justify-center shadow-lg shadow-yellow-500/20 text-black font-extrabold text-xl">
+                    🚖
+                </div>
+                <div>
+                    <span class="text-lg font-bold text-white tracking-tight">SmartTaxi</span>
+                    <span class="text-xs font-semibold text-yellow-400 block -mt-1 tracking-wider uppercase">Analytics Platform</span>
+                </div>
+            </div>
+
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+                <a href="#problem" class="hover:text-yellow-400 transition-colors">Problem</a>
+                <a href="#architecture" class="hover:text-yellow-400 transition-colors">Architecture</a>
+                <a href="#pipeline" class="hover:text-yellow-400 transition-colors">Pipeline</a>
+                <a href="#ml" class="hover:text-yellow-400 transition-colors">ML Models</a>
+                <a href="#engineering" class="hover:text-yellow-400 transition-colors">Engineering</a>
+                <a href="#team" class="hover:text-yellow-400 transition-colors">Team</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/sarah-88x/nyc-taxi-big-data-pipeline" target="_blank" class="hidden sm:inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                    <span>GitHub Repo</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 overflow-hidden">
+        <!-- Glow Effect -->
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-yellow-500/10 blur-[130px] rounded-full pointer-events-none"></div>
+        <div class="absolute top-1/3 left-1/3 w-[400px] h-[250px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-semibold uppercase tracking-wider mb-8">
+                <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                <span>NYC TAXI BIG DATA PIPELINE • 9.36 GB DATASET</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-tight max-w-5xl mx-auto mb-6">
+                Transforming Raw Taxi Records into <span class="gradient-text">Live Urban Intelligence</span>
+            </h1>
+
+            <p class="text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+                An enterprise-grade, containerized Big Data Lakehouse & Streaming platform processing over 100 Million NYC Yellow Taxi trips using Apache Spark, Kafka, HDFS, PostgreSQL, Airflow, and Superset.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-16">
+                <a href="#pipeline" class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-bold text-sm shadow-xl shadow-yellow-500/25 transition-all transform hover:-translate-y-0.5">
+                    Explore Interactive Pipeline
+                </a>
+                <a href="#architecture" class="px-7 py-3.5 rounded-xl glass-card hover:bg-slate-800 text-white font-semibold text-sm border border-slate-700 transition-all">
+                    View Architecture Blueprint
+                </a>
+            </div>
+
+            <!-- Key Metric Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-left border-l-4 border-l-yellow-500">
+                    <p class="text-xs uppercase font-semibold text-slate-400 tracking-wider">Raw Dataset</p>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">9.36 GB</p>
+                    <p class="text-xs text-yellow-400/80 mt-1 font-medium">18 Months (2019-01 → 2020-06)</p>
+                </div>
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-left border-l-4 border-l-blue-500">
+                    <p class="text-xs uppercase font-semibold text-slate-400 tracking-wider">Microservices</p>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">13 Isolated</p>
+                    <p class="text-xs text-blue-400/80 mt-1 font-medium">Docker Compose Orchestration</p>
+                </div>
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-left border-l-4 border-l-emerald-500">
+                    <p class="text-xs uppercase font-semibold text-slate-400 tracking-wider">Dual-Path Architecture</p>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">80% / 20%</p>
+                    <p class="text-xs text-emerald-400/80 mt-1 font-medium">Batch Baseline + Live Kafka Replay</p>
+                </div>
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-left border-l-4 border-l-purple-500">
+                    <p class="text-xs uppercase font-semibold text-slate-400 tracking-wider">Predictive Accuracy</p>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white mt-1">4.42 min</p>
+                    <p class="text-xs text-purple-400/80 mt-1 font-medium">Duration Prediction MAE</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Statement Section -->
+    <section id="problem" class="py-20 border-t border-slate-800/80 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">01. Problem Statement</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">Turning 101M Raw Taxi Logs into Actionable Decisions</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Every yellow cab crossing NYC leaves a digital trace. But raw logs are noisy, massive, and scattered.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 mb-5 text-xl font-bold">
+                        💥
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">The Raw Reality</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        9.36 GB of raw CSV files spanning 18 months, full of missing values, negative fares, and sensor recording glitches.
+                    </p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-5 text-xl font-bold">
+                        📉
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Invisible Bottlenecks</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Unidentified congestion spikes and route delays lead to lost revenue for fleet operators and poor passenger service.
+                    </p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-5 text-xl font-bold">
+                        🛠️
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Unusable Unstructured Data</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Raw CSVs are inefficient for querying. Without schema enforcement and Parquet columnar storage, queries choke.
+                    </p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-6 rounded-2xl border border-slate-800">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 text-xl font-bold">
+                        🧠
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Lack of AI Decision Tools</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Traditional operators lack real-time streaming anomaly detection and predictive models for fare and duration estimation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture" class="py-20 border-t border-slate-800/80 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">02. System Blueprint</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">6-Layer Enterprise Big Data Architecture</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Orchestrated end-to-end using 13 microservices inside Docker Compose.</p>
+            </div>
+
+            <!-- Architecture Diagram Graphic -->
+            <div class="glass-card p-6 rounded-3xl border border-slate-800 mb-12 glow-yellow">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4 text-center">
+                    
+                    <!-- Layer 1 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider block mb-2">1. Data Sources</span>
+                            <div class="text-3xl mb-2">🚕</div>
+                            <p class="text-sm font-bold text-white">NYC Yellow Taxi Data</p>
+                            <p class="text-xs text-slate-400 mt-1">9.36 GB Kaggle CSVs (2019-01 → 2020-06)</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-yellow-400 font-semibold">
+                            80% Batch / 20% Stream
+                        </div>
+                    </div>
+
+                    <!-- Layer 2 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-orange-400 uppercase tracking-wider block mb-2">2. Ingestion</span>
+                            <div class="text-3xl mb-2">⚡</div>
+                            <p class="text-sm font-bold text-white">Apache Kafka</p>
+                            <p class="text-xs text-slate-400 mt-1">Topics: raw_taxi_trips, taxi_trip_events, taxi_alerts</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-orange-400 font-semibold">
+                            Live Stream Producer
+                        </div>
+                    </div>
+
+                    <!-- Layer 3 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider block mb-2">3. Processing</span>
+                            <div class="text-3xl mb-2">🔥</div>
+                            <p class="text-sm font-bold text-white">Apache Spark</p>
+                            <p class="text-xs text-slate-400 mt-1">PySpark Batch & Spark Structured Streaming</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-blue-400 font-semibold">
+                            Cleansing & Feature Eng.
+                        </div>
+                    </div>
+
+                    <!-- Layer 4 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2">4. Storage</span>
+                            <div class="text-3xl mb-2">🐘</div>
+                            <p class="text-sm font-bold text-white">HDFS & PostgreSQL</p>
+                            <p class="text-xs text-slate-400 mt-1">Medallion Lakehouse (Bronze, Silver, Gold)</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-emerald-400 font-semibold">
+                            Snappy Parquet + JDBC
+                        </div>
+                    </div>
+
+                    <!-- Layer 5 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-2">5. ML Analytics</span>
+                            <div class="text-3xl mb-2">🤖</div>
+                            <p class="text-sm font-bold text-white">Spark MLlib</p>
+                            <p class="text-xs text-slate-400 mt-1">RandomForest Regression & KMeans Outliers</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-purple-400 font-semibold">
+                            Fare & Duration Models
+                        </div>
+                    </div>
+
+                    <!-- Layer 6 -->
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-700/60 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-pink-400 uppercase tracking-wider block mb-2">6. Visualization</span>
+                            <div class="text-3xl mb-2">📊</div>
+                            <p class="text-sm font-bold text-white">Apache Superset</p>
+                            <p class="text-xs text-slate-400 mt-1">Interactive Executive BI & Demand Heatmaps</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-pink-400 font-semibold">
+                            Live Port :8088
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Medallion Tier Breakdown -->
+            <div class="grid md:grid-cols-4 gap-6">
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-600">
+                    <span class="text-xs font-bold text-amber-500 uppercase tracking-wider">Bronze Tier</span>
+                    <h5 class="text-base font-bold text-white mt-1">/raw (Immutable CSV)</h5>
+                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Original Kaggle raw trip files and Taxi Zone lookup tables stored forever without destructive edits.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-slate-400">
+                    <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Silver Tier</span>
+                    <h5 class="text-base font-bold text-white mt-1">/processed (Parquet)</h5>
+                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Cleaned, schema-enforced, outlier-filtered Snappy Parquet dataset optimized for Spark compute.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-yellow-400">
+                    <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Gold Tier</span>
+                    <h5 class="text-base font-bold text-white mt-1">/curated (PostgreSQL)</h5>
+                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Aggregated business tables (daily hourly stats, zone pickup metrics) served directly to Apache Superset.</p>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border-l-4 border-l-purple-400">
+                    <span class="text-xs font-bold text-purple-400 uppercase tracking-wider">ML Tier</span>
+                    <h5 class="text-base font-bold text-white mt-1">/models (Spark Pipelines)</h5>
+                    <p class="text-slate-400 text-xs mt-2 leading-relaxed">Serialized Random Forest and KMeans models persisted on HDFS for inference.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Data Pipeline Walkthrough -->
+    <section id="pipeline" class="py-20 border-t border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">03. Interactive Walkthrough</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">Step-by-Step Data Flow</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Click through the pipeline stages to explore code, data states, and transformations.</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex flex-wrap justify-center gap-2 mb-10" id="pipeline-tabs">
+                <button onclick="switchTab(1)" id="tab-btn-1" class="px-5 py-2.5 rounded-xl font-semibold text-xs transition-all bg-yellow-500 text-black shadow-lg shadow-yellow-500/20">
+                    1. Ingestion (Kafka/HDFS)
+                </button>
+                <button onclick="switchTab(2)" id="tab-btn-2" class="px-5 py-2.5 rounded-xl font-semibold text-xs transition-all glass-card hover:bg-slate-800 text-slate-300">
+                    2. Cleansing (PySpark)
+                </button>
+                <button onclick="switchTab(3)" id="tab-btn-3" class="px-5 py-2.5 rounded-xl font-semibold text-xs transition-all glass-card hover:bg-slate-800 text-slate-300">
+                    3. Real-Time Streaming
+                </button>
+                <button onclick="switchTab(4)" id="tab-btn-4" class="px-5 py-2.5 rounded-xl font-semibold text-xs transition-all glass-card hover:bg-slate-800 text-slate-300">
+                    4. Serving DB & Superset
+                </button>
+                <button onclick="switchTab(5)" id="tab-btn-5" class="px-5 py-2.5 rounded-xl font-semibold text-xs transition-all glass-card hover:bg-slate-800 text-slate-300">
+                    5. Spark MLlib Training
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="glass-card p-8 rounded-3xl border border-slate-800">
+                <!-- Content 1 -->
+                <div id="tab-content-1" class="block">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="text-xs font-bold text-yellow-400 uppercase tracking-wider block mb-2">Stage 1</span>
+                            <h4 class="text-2xl font-bold text-white mb-4">Dual Ingestion: 80% Batch + 20% Real Kafka Replay</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                                To simulate a production environment, 80% of historical CSV files are stored directly in HDFS <code class="text-yellow-400">/raw/trips/</code>. 
+                                The remaining 20% is held back and replayed record-by-record via a Python producer into Kafka topic <code class="text-yellow-400">raw_taxi_trips</code>.
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                                <li class="flex items-center"><span class="text-yellow-400 mr-2">✓</span> Zero synthetic data generation — 100% real Kaggle taxi events.</li>
+                                <li class="flex items-center"><span class="text-yellow-400 mr-2">✓</span> Kafka Broker listening on <code class="text-slate-200">kafka:29092</code> (internal) & <code class="text-slate-200">localhost:9092</code> (host).</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                            <span class="text-slate-500"># kafka/producer.py</span><br>
+                            <span class="text-purple-400">producer</span> = KafkaProducer(<br>
+                            &nbsp;&nbsp;bootstrap_servers=[<span class="text-emerald-400">'localhost:9092'</span>],<br>
+                            &nbsp;&nbsp;value_serializer=<span class="text-blue-400">lambda</span> v: json.dumps(v).encode(<span class="text-emerald-400">'utf-8'</span>)<br>
+                            )<br><br>
+                            <span class="text-purple-400">for</span> row <span class="text-purple-400">in</span> reader:<br>
+                            &nbsp;&nbsp;producer.send(<span class="text-emerald-400">'raw_taxi_trips'</span>, value=row)<br>
+                            &nbsp;&nbsp;time.sleep(<span class="text-orange-400">0.01</span>) <span class="text-slate-500"># Live replay speed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content 2 -->
+                <div id="tab-content-2" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="text-xs font-bold text-blue-400 uppercase tracking-wider block mb-2">Stage 2</span>
+                            <h4 class="text-2xl font-bold text-white mb-4">PySpark Quality Pipeline & Feature Engineering</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                                PySpark loads raw CSVs, casts pickup/dropoff timestamps, derives <code class="text-blue-400">trip_duration_seconds</code>, 
+                                and filters out invalid records (negative fares, passenger count = 0, distance > 100 miles, fare > $500).
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                                <li class="flex items-center"><span class="text-blue-400 mr-2">✓</span> Flags logical anomalies (e.g. positive duration with zero distance).</li>
+                                <li class="flex items-center"><span class="text-blue-400 mr-2">✓</span> Persists cleaned Silver dataset to HDFS Parquet format.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                            <span class="text-slate-500"># spark/batch/clean_taxi_data.py</span><br>
+                            df = df.filter(<br>
+                            &nbsp;&nbsp;(col(<span class="text-emerald-400">"fare_amount"</span>) >= <span class="text-orange-400">2.5</span>) &<br>
+                            &nbsp;&nbsp;(col(<span class="text-emerald-400">"passenger_count"</span>) > <span class="text-orange-400">0</span>) &<br>
+                            &nbsp;&nbsp;(col(<span class="text-emerald-400">"trip_distance"</span>) <= <span class="text-orange-400">100</span>)<br>
+                            )<br><br>
+                            df.write.mode(<span class="text-emerald-400">"overwrite"</span>).parquet(<br>
+                            &nbsp;&nbsp;<span class="text-emerald-400">"hdfs://namenode:9000/processed/yellow_trips_clean.parquet"</span><br>
+                            )
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content 3 -->
+                <div id="tab-content-3" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="text-xs font-bold text-orange-400 uppercase tracking-wider block mb-2">Stage 3</span>
+                            <h4 class="text-2xl font-bold text-white mb-4">Spark Structured Streaming & Instant Alerts</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                                Spark Structured Streaming subscribes to <code class="text-orange-400">raw_taxi_trips</code>, processes events in micro-batches, 
+                                and evaluates real-time alerting rules (e.g., fares > $150 or zero-distance high cost).
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                                <li class="flex items-center"><span class="text-orange-400 mr-2">✓</span> Outputs cleaned events to <code class="text-slate-200">taxi_trip_events</code>.</li>
+                                <li class="flex items-center"><span class="text-orange-400 mr-2">✓</span> Outputs instant anomaly alerts to <code class="text-slate-200">taxi_alerts</code>.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                            <span class="text-slate-500"># spark/stream/stream_processor.py</span><br>
+                            <span class="text-purple-400">if</span> fare_amount > <span class="text-orange-400">150.0</span>:<br>
+                            &nbsp;&nbsp;alert_reason = <span class="text-emerald-400">"High Fare Anomaly"</span><br>
+                            <span class="text-purple-400">elif</span> trip_distance == <span class="text-orange-400">0.0</span> <span class="text-purple-400">and</span> fare_amount > <span class="text-orange-400">30.0</span>:<br>
+                            &nbsp;&nbsp;alert_reason = <span class="text-emerald-400">"Zero Distance High Cost"</span><br><br>
+                            producer.send(<span class="text-emerald-400">"taxi_alerts"</span>, value=alert_payload)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content 4 -->
+                <div id="tab-content-4" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2">Stage 4</span>
+                            <h4 class="text-2xl font-bold text-white mb-4">PostgreSQL Data Mart & Apache Superset BI</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                                Aggregated OLAP models (hourly demand trends, zone pickup counts) are written to PostgreSQL via JDBC. 
+                                Apache Superset connects directly to PostgreSQL to serve live executive dashboards.
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                                <li class="flex items-center"><span class="text-emerald-400 mr-2">✓</span> <code class="text-slate-200">daily_hourly_stats</code>: Hourly trip counts & revenue.</li>
+                                <li class="flex items-center"><span class="text-emerald-400 mr-2">✓</span> <code class="text-slate-200">zone_pickup_stats</code>: Spatial borough activity summary.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                            <span class="text-slate-500"># spark/batch/aggregate_trips.py</span><br>
+                            df_hourly.write.jdbc(<br>
+                            &nbsp;&nbsp;url=<span class="text-emerald-400">"jdbc:postgresql://postgres:5432/smart_taxi_db"</span>,<br>
+                            &nbsp;&nbsp;table=<span class="text-emerald-400">"daily_hourly_stats"</span>,<br>
+                            &nbsp;&nbsp;mode=<span class="text-emerald-400">"overwrite"</span>,<br>
+                            &nbsp;&nbsp;properties=db_properties<br>
+                            )
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content 5 -->
+                <div id="tab-content-5" class="hidden">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-400 uppercase tracking-wider block mb-2">Stage 5</span>
+                            <h4 class="text-2xl font-bold text-white mb-4">Spark MLlib Predictive & Anomaly Models</h4>
+                            <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                                Spark MLlib fits Random Forest Regressor models for predicting fare amounts and trip durations based on trip distance, 
+                                pickup hour, day of week, and location IDs. Models are saved back to HDFS <code class="text-purple-400">/models/</code>.
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-400 mb-6">
+                                <li class="flex items-center"><span class="text-purple-400 mr-2">✓</span> Fare Model: Evaluates RMSE ($) & R² score.</li>
+                                <li class="flex items-center"><span class="text-purple-400 mr-2">✓</span> Duration Model: Achieves ~4.42 min MAE on test set.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
+                            <span class="text-slate-500"># spark/mllib/train_fare_model.py</span><br>
+                            rf = RandomForestRegressor(<br>
+                            &nbsp;&nbsp;featuresCol=<span class="text-emerald-400">"features"</span>,<br>
+                            &nbsp;&nbsp;labelCol=<span class="text-emerald-400">"fare_amount"</span>,<br>
+                            &nbsp;&nbsp;numTrees=<span class="text-orange-400">25</span>, maxDepth=<span class="text-orange-400">8</span><br>
+                            )<br><br>
+                            model.write().overwrite().save(<span class="text-emerald-400">"hdfs://namenode:9000/models/fare_rf"</span>)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Machine Learning Models Section -->
+    <section id="ml" class="py-20 border-t border-slate-800/80 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">04. Predictive Intelligence</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">Spark MLlib Models & Outlier Detection</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Trained at scale on distributed Spark Workers.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center text-yellow-400 font-bold mb-4 text-lg">
+                        💵
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Fare Amount Predictor</h4>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Random Forest Regression predicting fare amount based on trip distance, pickup hour, day of week, and location zones.
+                    </p>
+                    <div class="pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Algorithm</span>
+                        <span class="text-yellow-400 font-mono font-semibold">RandomForest (25 Trees)</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-bold mb-4 text-lg">
+                        ⏱️
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">Trip Duration Predictor</h4>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Predicts total travel duration (minutes) using spatial borough index and temporal features.
+                    </p>
+                    <div class="pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Target Accuracy</span>
+                        <span class="text-blue-400 font-mono font-semibold">4.42 min MAE</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold mb-4 text-lg">
+                        🚨
+                    </div>
+                    <h4 class="text-lg font-bold text-white mb-2">K-Means Outlier Detector</h4>
+                    <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+                        Unsupervised clustering into 4 mobility profiles. Flags trips above 95th percentile Euclidean centroid distance.
+                    </p>
+                    <div class="pt-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Method</span>
+                        <span class="text-purple-400 font-mono font-semibold">KMeans + Euclidean UDF</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Engineering Challenges & Resolutions -->
+    <section id="engineering" class="py-20 border-t border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">05. Production Engineering</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">Challenges & Production Resolutions</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Real-world issues encountered and resolved during pipeline deployment.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">Challenge 1</div>
+                    <h4 class="text-base font-bold text-white mb-2">GitHub 100MB File Limit Isolation</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Heavy raw CSV and Parquet files blocked repository commits.
+                    </p>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono">
+                        ✓ Configured strict .gitignore rules and decoupled raw storage to HDFS.
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Challenge 2</div>
+                    <h4 class="text-base font-bold text-white mb-2">PostgreSQL JDBC Driver Binding</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Spark jobs threw ClassNotFoundException when attempting to export to PostgreSQL.
+                    </p>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono">
+                        ✓ Mounted postgresql-42.5.0.jar into cluster & passed via --jars.
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl border border-slate-800">
+                    <div class="text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">Challenge 3</div>
+                    <h4 class="text-base font-bold text-white mb-2">Kafka Dual-Listener Setup</h4>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                        Host python producer couldn't reach Kafka broker inside Docker network.
+                    </p>
+                    <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono">
+                        ✓ Configured localhost:9092 for Host & kafka:29092 for Containers.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-20 border-t border-slate-800/80 bg-slate-950/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-xs font-bold text-yellow-400 uppercase tracking-widest mb-2">06. The People Behind The Platform</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-white">Project Contributors</h3>
+                <p class="text-slate-400 mt-4 text-sm sm:text-base">Five Contributors, One Integrated Big Data Platform.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-center border border-slate-800">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-300 text-black font-extrabold text-xl flex items-center justify-center mx-auto mb-3">
+                        AE
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Abdallah Amer Ezat</h4>
+                    <p class="text-[11px] text-yellow-400 font-medium mt-1">Project Contributor</p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-center border border-slate-800">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-300 text-black font-extrabold text-xl flex items-center justify-center mx-auto mb-3">
+                        YH
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Youssef Mohammed Hamada</h4>
+                    <p class="text-[11px] text-blue-400 font-medium mt-1">Project Contributor</p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-center border border-slate-800">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-300 text-black font-extrabold text-xl flex items-center justify-center mx-auto mb-3">
+                        AS
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Ahmed Shahaat</h4>
+                    <p class="text-[11px] text-emerald-400 font-medium mt-1">Project Contributor</p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-center border border-slate-800">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-purple-500 to-pink-300 text-black font-extrabold text-xl flex items-center justify-center mx-auto mb-3">
+                        SR
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Sara Sayed Rashad</h4>
+                    <p class="text-[11px] text-purple-400 font-medium mt-1">Project Contributor</p>
+                </div>
+
+                <div class="glass-card glass-card-hover p-5 rounded-2xl text-center border border-slate-800">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-orange-500 to-amber-300 text-black font-extrabold text-xl flex items-center justify-center mx-auto mb-3">
+                        YG
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Yasmeen Nasreddin Gad</h4>
+                    <p class="text-[11px] text-orange-400 font-medium mt-1">Project Contributor</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-800/80 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="mb-2">Smart Taxi & Urban Mobility Analytics Platform © 2026. All rights reserved.</p>
+            <p class="text-slate-600">Built with Apache Spark, Apache Kafka, HDFS, PostgreSQL, Apache Airflow, and Apache Superset.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        function switchTab(tabId) {
+            // Hide all contents
+            for (let i = 1; i <= 5; i++) {
+                const content = document.getElementById('tab-content-' + i);
+                const btn = document.getElementById('tab-btn-' + i);
+                if (content) content.classList.add('hidden');
+                if (btn) {
+                    btn.className = "px-5 py-2.5 rounded-xl font-semibold text-xs transition-all glass-card hover:bg-slate-800 text-slate-300";
+                }
+            }
+
+            // Show target content
+            const targetContent = document.getElementById('tab-content-' + tabId);
+            const targetBtn = document.getElementById('tab-btn-' + tabId);
+            if (targetContent) targetContent.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = "px-5 py-2.5 rounded-xl font-semibold text-xs transition-all bg-yellow-500 text-black shadow-lg shadow-yellow-500/20";
+            }
+        }
+    </script>
+</body>
+</html>
